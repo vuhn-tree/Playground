@@ -83,7 +83,6 @@
                 center: [-122.18, 37.49] // longitude, latitude
             });
 
-            var testGraphic;
             view.when(() => {
                 const sketch = new Sketch({
                     layer: graphicsLayer,
@@ -94,9 +93,7 @@
 
                 view.ui.add(sketch, "top-right");
                 sketch.on("create", (sketchEvent) => {
-                    if (sketchEvent.state === "complete") {
-                        testGraphic = sketchEvent.graphic;
-                        
+                    if (sketchEvent.state === "complete") {                        
                         // create an array of graphics based on the data above
                         let graphics = [];
                         let graphic;
