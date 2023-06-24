@@ -96,20 +96,8 @@
                 sketch.on("create", (sketchEvent) => {
                     if (sketchEvent.state === "complete") {
                         testGraphic = sketchEvent.graphic;
-                        // let featureLayer = createLayer(graphicsLayer);
-                        // addToView(featureLayer);
-                        console.log(sketchEvent.graphic.geometry.latitude);
-                        // const data = [
-                        //   {
-                        //     LATITUDE: sketchEvent.graphic.geometry.latitude,
-                        //     LONGITUDE: sketchEvent.graphic.geometry.longitude,
-                        //     TYPE: "National Monument",
-                        //     NAME: "Cabrillo National Monument"
-                        //   },
-                        // ];
-
+                        
                         // create an array of graphics based on the data above
-
                         let graphics = [];
                         let graphic;
                         // for (let i=0; i<data.length; i++){
