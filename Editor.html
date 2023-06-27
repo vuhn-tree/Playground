@@ -1,0 +1,316 @@
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="initial-scale=1,maximum-scale=1,user-scalable=no" />
+    <title>Editor widget with configurations | Sample | ArcGIS Maps SDK for JavaScript 4.27</title>
+    <link rel="stylesheet" href="https://js.arcgis.com/4.27/esri/themes/light/main.css" />
+    <script src="https://js.arcgis.com/4.27/"></script>
+
+    <style>
+      html,
+      body,
+      #viewDiv {
+        padding: 0;
+        margin: 0;
+        height: 100%;
+        width: 100%;
+      }
+
+    </style>
+
+    <script>
+      require(["esri/WebMap", "esri/views/MapView", "esri/widgets/Editor", "esri/Map", "esri/layers/FeatureLayer","esri/popup/content/AttachmentsContent", "esri/form/elements/FieldElement",
+      "esri/form/elements/GroupElement", "esri/form/elements/inputs/ComboBoxInput", "esri/widgets/ValuePicker"], function (
+        WebMap,
+        MapView,
+        Editor,
+        Map,
+        FeatureLayer,
+        AttachmentsContent,
+        FieldElement, 
+        GroupElement,
+        ComboBoxInput,
+        ValuePicker 
+      ) {
+          let editConfigCrimeLayer, editConfigPoliceLayer, editMonLayer;
+
+          // Create a map from the referenced webmap item id
+          // let webmap = new WebMap({
+          //   portalItem: {
+          //     id: "154ba34201774bb29f7c3b68adf52b6a"
+          //   }
+          // });
+        const fieldElement2 = new FieldElement({
+          fieldName: "inspdate",
+          label: "Inspection date",
+          description: "Date inspection was handled",
+          input: { // autocastable to DateTimePickerInput
+            type: "datetime-picker",
+            includeTime: true,
+            min: 1547678342000,
+            max: 1610836742000
+          }
+        });
+        
+        
+        const fieldComboBox = new FieldElement({
+          fieldName: "combobox1",
+          label: "Test Combobox",
+          description: "Mr. Combo",
+          input: { // autocastable to DateTimePickerInput
+            type: "combo-box",
+            noValueOptionLabel: "Unknown",
+            showNoValueOption: true
+          }
+        });
+        
+        const valuePicker = new ValuePicker({
+          component: { // autocasts ValuePickerCombobox when type is "combobox".
+            type: "combobox",
+            placeholder: "Pick Zoning Type",
+            items: [
+              { value: "ind", label: "Industrial" },
+              { value: "res", label: "Residential" },
+              { value: "com", label: "Commercial" }
+            ]
+          },
+          values: ["res"]
+        });
+
+        
+          const webmap = new Map({
+            basemap: "topo-vector",
+            // layers: [graphicsLayer]
+          });
+
+          let view = new MapView({
+            container: "viewDiv",
+            map: webmap
+          });
+
+          view.ui.add(valuePicker, "top-right");
+        
+          // create empty FeatureLayer
+          const monumentLayer = new FeatureLayer({
+            // create an instance of esri/layers/support/Field for each field object
+            title: "National Monuments",
+            fields: [
+              {
+                name: "ObjectID",
+                alias: "ObjectID",
+                type: "oid"
+              },
+              {
+                name: "Name",
+                alias: "Name",
+                type: "string"
+              },
+              {
+                name: "Type",
+                alias: "Type",
+                type: "string"
+              },
+              {
+                name: "inspdate",
+                alias: "inspdate",
+                type: "date"
+              },     
+              {
+                name: "combobox1",
+                alias: "combobox1",
+                type: "string",
+                // valueType: "name-or-title"
+              },  
+              // {
+              //   name: "fulladdr",
+              //   alias: "fulladdr",
+              //   type: "string"
+              // },       
+              
+            ],
+            objectIdField: "ObjectID",
+            geometryType: "polygon",
+            spatialReference: { wkid: 4326 },
+            source: [], // adding an empty feature collection
+            // renderer: {
+            //   type: "simple",
+            //   symbol: {
+            //     type: "web-style", // autocasts as new WebStyleSymbol()
+            //     styleName: "Esri2DPointSymbolsStyle",
+            //     name: "landmark"
+            //   }
+            // },
+            popupTemplate: {
+              title: "{Name}"
+            }
+          });
+          webmap.add(monumentLayer);
+        
+        
+        // Function that creates two popup elements for the template: attachments and text
+        function difficultyLevel(feature) {
+          // 1. Set how the attachments should display within the popup
+          const attachmentsElement = new AttachmentsContent({
+            displayType: "list"
+          });
+
+          const textElement = new TextContent();
+
+          const level = feature.graphic.attributes.difficulty;
+          const green = "<b><span style='color:green'>" + level + "</span></b>.";
+          const purple = "<b><span style='color:purple'>" + level + "</span></b>.";
+          const red = "<b><span style='color:red'>" + level + "</span></b>.";
+
+          // If the feature's "difficulty" attribute is a specific value, set it a certain color
+          // "easy" = green
+          // "medium" = purple
+          // "hard" = red
+          switch (level) {
+            case "easy":
+              textElement.text = "The {trailName} trail has a difficulty level of " + green;
+              return [textElement, attachmentsElement];
+              break;
+            case "medium":
+              textElement.text = "The {trailName} trail has a difficulty level of " + purple;
+              return [textElement, attachmentsElement];
+              break;
+            case "hard":
+              textElement.text = "The {trailName} trail has a difficulty level of " + red;
+              return [textElement, attachmentsElement];
+          }
+        }
+        
+        
+        view.when(() => {
+          // Create a custom group to separate the different areas of crime.
+          // This function takes a 'grouping' object which contains a feature template and a feature layer.
+
+          function customGroup(grouping) {
+            // If the layer is 'Police routes', do not group.
+            let groupHeading = "Police Routes";
+            if (grouping.layer.title.toLowerCase() === "crime map") {
+              switch (grouping.template.name) {
+                case "Criminal Homicide":
+                case "Rape":
+                case "Robbery":
+                case "Aggravated Assault":
+                  groupHeading = "Violent Crime";
+                  break;
+                case "Arson":
+                case "Burglary":
+                case "Larceny":
+                case "Motor Vehicle Theft":
+                  groupHeading = "Property Crime";
+                  break;
+                default:
+                  groupHeading = "Quality of Life";
+              }
+            }
+            return groupHeading;
+          }
+
+          // Loop through the webmap's layers and set an edit configuration
+          view.map.layers.forEach((layer) => {
+            if (layer.title === "National Monuments") {
+              editMonLayer = {
+                layer: layer,
+                formTemplate: { //autocastable to FormTemplate
+                // Set it so that only one field displays within the form
+                  elements: [
+                    // {
+                    //   name: "ObjectID",
+                    //   alias: "ObjectID",
+                    //   type: "oid"
+                    // },
+                    {
+                      fieldName: "Name",
+                      label: "Name",
+                      type: "field",
+                    },
+                    {
+                      fieldName: "Type",
+                      label: "Type",
+                      type: "field",
+                    },
+                    fieldElement2,
+                    fieldComboBox
+                  ],
+                },
+                // spatialReference: { wkid: 4326 },
+              };
+            }
+            
+            // if (layer.title === "Police routes") {
+            //   editConfigPoliceLayer = {
+            //     layer: layer,
+            //     formTemplate: { //autocastable to FormTemplate
+            //     // Set it so that only one field displays within the form
+            //       elements: [{ // autocastable to FieldElement
+            //         type: "field",
+            //         fieldName: "PatrolType",
+            //         label: "Patrol Type"
+            //       }]
+            //     }
+            //   };
+            // } else {
+            //   // Specify a few of the fields to edit within the form
+            //   editConfigCrimeLayer = {
+            //     layer: layer,
+            //     formTemplate: { // autocastable to FormTemplate
+            //       elements: [{ // autocastable to FieldElement
+            //           type: "field",
+            //           fieldName: "fulladdr",
+            //           label: "Full Address"
+            //         },
+            //         {
+            //           type: "field",
+            //           fieldName: "neighborhood",
+            //           label: "Neighborhood"
+            //         },
+            //         {
+            //           type: "field",
+            //           fieldName: "ucrdesc",
+            //           label: "UCR Description"
+            //         },
+            //         {
+            //           type: "field",
+            //           fieldName: "crimecategory",
+            //           label: "Category"
+            //         },
+            //         {
+            //           type: "field",
+            //           fieldName: "casestatus",
+            //           label: "Status"
+            //         }
+            //       ]
+            //     }
+            //   };
+            // }
+          });
+
+          // Create the Editor
+          const editor = new Editor({
+            view: view,
+            // Pass in the configurations created above
+            layerInfos: [editMonLayer],
+            // Override the default template behavior of the Editor widget
+            // supportingWidgetDefaults: {
+            //   featureTemplates: {
+            //     groupBy: customGroup
+            //   }
+            // }
+          });
+
+          // Add widget to the view
+          view.ui.add(editor, "top-right");
+      });
+    });
+  </script>
+</head>
+
+<body>
+  <div id="viewDiv"></div>
+  <div id="editorDiv"></div>
+</body>
+
+</html>
