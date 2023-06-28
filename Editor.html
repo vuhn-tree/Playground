@@ -49,7 +49,8 @@
             includeTime: true,
             min: 1547678342000,
             max: 1610836742000
-          }
+          }, 
+
         });
         
         
@@ -61,7 +62,8 @@
             type: "combo-box",
             noValueOptionLabel: "Unknown",
             showNoValueOption: true
-          }
+          },
+
         });
         
         const valuePicker = new ValuePicker({
@@ -120,6 +122,11 @@
                 alias: "combobox1",
                 type: "string",
                 // valueType: "name-or-title"
+                category: [
+                  { value: "ind", label: "Industrial" },
+                  { value: "res", label: "Residential" },
+                  { value: "com", label: "Commercial" }
+                ]
               },  
               // {
               //   name: "fulladdr",
@@ -239,53 +246,6 @@
                 // spatialReference: { wkid: 4326 },
               };
             }
-            
-            // if (layer.title === "Police routes") {
-            //   editConfigPoliceLayer = {
-            //     layer: layer,
-            //     formTemplate: { //autocastable to FormTemplate
-            //     // Set it so that only one field displays within the form
-            //       elements: [{ // autocastable to FieldElement
-            //         type: "field",
-            //         fieldName: "PatrolType",
-            //         label: "Patrol Type"
-            //       }]
-            //     }
-            //   };
-            // } else {
-            //   // Specify a few of the fields to edit within the form
-            //   editConfigCrimeLayer = {
-            //     layer: layer,
-            //     formTemplate: { // autocastable to FormTemplate
-            //       elements: [{ // autocastable to FieldElement
-            //           type: "field",
-            //           fieldName: "fulladdr",
-            //           label: "Full Address"
-            //         },
-            //         {
-            //           type: "field",
-            //           fieldName: "neighborhood",
-            //           label: "Neighborhood"
-            //         },
-            //         {
-            //           type: "field",
-            //           fieldName: "ucrdesc",
-            //           label: "UCR Description"
-            //         },
-            //         {
-            //           type: "field",
-            //           fieldName: "crimecategory",
-            //           label: "Category"
-            //         },
-            //         {
-            //           type: "field",
-            //           fieldName: "casestatus",
-            //           label: "Status"
-            //         }
-            //       ]
-            //     }
-            //   };
-            // }
           });
 
           // Create the Editor
