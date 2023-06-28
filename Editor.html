@@ -126,42 +126,7 @@
 
           });
           webmap.add(monumentLayer);
-        
-        
-        // Function that creates two popup elements for the template: attachments and text
-        function difficultyLevel(feature) {
-          // 1. Set how the attachments should display within the popup
-          const attachmentsElement = new AttachmentsContent({
-            displayType: "list"
-          });
-
-          const textElement = new TextContent();
-
-          const level = feature.graphic.attributes.difficulty;
-          const green = "<b><span style='color:green'>" + level + "</span></b>.";
-          const purple = "<b><span style='color:purple'>" + level + "</span></b>.";
-          const red = "<b><span style='color:red'>" + level + "</span></b>.";
-
-          // If the feature's "difficulty" attribute is a specific value, set it a certain color
-          // "easy" = green
-          // "medium" = purple
-          // "hard" = red
-          switch (level) {
-            case "easy":
-              textElement.text = "The {trailName} trail has a difficulty level of " + green;
-              return [textElement, attachmentsElement];
-              break;
-            case "medium":
-              textElement.text = "The {trailName} trail has a difficulty level of " + purple;
-              return [textElement, attachmentsElement];
-              break;
-            case "hard":
-              textElement.text = "The {trailName} trail has a difficulty level of " + red;
-              return [textElement, attachmentsElement];
-          }
-        }
-        
-        
+         
         view.when(() => {
           // Create a custom group to separate the different areas of crime.
           // This function takes a 'grouping' object which contains a feature template and a feature layer.
