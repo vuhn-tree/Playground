@@ -20,7 +20,8 @@
 
     <script>
       require(["esri/WebMap", "esri/views/MapView", "esri/widgets/Editor", "esri/Map", "esri/layers/FeatureLayer","esri/popup/content/AttachmentsContent", "esri/form/elements/FieldElement",
-      "esri/form/elements/GroupElement", "esri/form/elements/inputs/ComboBoxInput", "esri/widgets/ValuePicker"], function (
+      "esri/form/elements/GroupElement", "esri/form/elements/inputs/ComboBoxInput", "esri/widgets/ValuePicker", "esri/form/elements/inputs/RadioButtonsInput",
+              "esri/form/elements/inputs/SwitchInput"], function (
         WebMap,
         MapView,
         Editor,
@@ -30,67 +31,20 @@
         FieldElement, 
         GroupElement,
         ComboBoxInput,
-        ValuePicker 
+        ValuePicker,
+        RadioButtonsInput,
+        SwitchInput
       ) {
           let editConfigCrimeLayer, editConfigPoliceLayer, editMonLayer;
 
-          // Create a map from the referenced webmap item id
-          // let webmap = new WebMap({
-          //   portalItem: {
-          //     id: "154ba34201774bb29f7c3b68adf52b6a"
-          //   }
-          // });
-        const fieldElement2 = new FieldElement({
-          fieldName: "inspdate",
-          label: "Inspection date",
-          description: "Date inspection was handled",
-          input: { // autocastable to DateTimePickerInput
-            type: "datetime-picker",
-            includeTime: true,
-            min: 1547678342000,
-            max: 1610836742000
-          }, 
-
-        });
-        
-        
-        const fieldComboBox = new FieldElement({
-          fieldName: "combobox1",
-          label: "Test Combobox",
-          description: "Mr. Combo",
-          input: { // autocastable to DateTimePickerInput
-            type: "combo-box",
-            noValueOptionLabel: "Unknown",
-            showNoValueOption: true
-          },
-
-        });
-        
-        const valuePicker = new ValuePicker({
-          component: { // autocasts ValuePickerCombobox when type is "combobox".
-            type: "combobox",
-            placeholder: "Pick Zoning Type",
-            items: [
-              { value: "ind", label: "Industrial" },
-              { value: "res", label: "Residential" },
-              { value: "com", label: "Commercial" }
-            ]
-          },
-          values: ["res"]
-        });
-
-        
           const webmap = new Map({
             basemap: "topo-vector",
-            // layers: [graphicsLayer]
           });
 
           let view = new MapView({
             container: "viewDiv",
             map: webmap
           });
-
-          view.ui.add(valuePicker, "top-right");
         
           // create empty FeatureLayer
           const monumentLayer = new FeatureLayer({
@@ -121,18 +75,45 @@
                 name: "combobox1",
                 alias: "combobox1",
                 type: "string",
-                // valueType: "name-or-title"
-                category: [
-                  { value: "ind", label: "Industrial" },
-                  { value: "res", label: "Residential" },
-                  { value: "com", label: "Commercial" }
-                ]
+                domain : {
+                  type: "coded-value",
+                  name: "combobox1",
+                  codedValues:
+                  [
+                    { name : "one", code : "One" },
+                    { name : "two", code : "Two" },
+                    { name : "three", code : "3" },
+                  ],
+                }
               },  
-              // {
-              //   name: "fulladdr",
-              //   alias: "fulladdr",
-              //   type: "string"
-              // },       
+              {
+                name: "radioInput",
+                alias: "radioInput",
+                type: "string",
+                domain : {
+                  type: "coded-value",
+                  name: "radioInput",
+                  codedValues:
+                  [
+                    { name : "one", code : "One" },
+                    { name : "two", code : "Two" },
+                    { name : "three", code : "3" },
+                  ],
+                }
+              },  
+              {
+                name: "switchInput",
+                alias: "switchInput",
+                type: "string",
+                domain : {
+                  type: "coded-value",
+                  name: "switchInput",
+                  codedValues:
+                  [
+                    { name : "one", code : "One" },
+                  ],
+                }
+              },  
               
             ],
             objectIdField: "ObjectID",
@@ -149,7 +130,8 @@
             // },
             popupTemplate: {
               title: "{Name}"
-            }
+            },
+
           });
           webmap.add(monumentLayer);
         
@@ -224,11 +206,6 @@
                 formTemplate: { //autocastable to FormTemplate
                 // Set it so that only one field displays within the form
                   elements: [
-                    // {
-                    //   name: "ObjectID",
-                    //   alias: "ObjectID",
-                    //   type: "oid"
-                    // },
                     {
                       fieldName: "Name",
                       label: "Name",
@@ -239,8 +216,55 @@
                       label: "Type",
                       type: "field",
                     },
-                    fieldElement2,
-                    fieldComboBox
+                    {
+                      fieldName: "inspdate",
+                      label: "Inspection date",
+                      description: "Date inspection was handled",
+                      type: "field",
+                      input: { // autocastable to DateTimePickerInput
+                        type: "datetime-picker",
+                        includeTime: true,
+                        min: 1547678342000,
+                        max: 1610836742000
+                      }
+                    },
+                    {
+                      fieldName: "combobox1",
+                      label: "Test Combobox",
+                      type: "field",
+                      description: "Mr. Combo",
+                      input: {
+                        type: "combo-box",
+                        noValueOptionLabel: "Unknown",
+                        showNoValueOption: true,
+                      }
+                    },
+                    {
+                      fieldName: "radioInput",
+                      label: "Test RADIO",
+                      description: "Mr. Radio",
+                      type: "field",
+                      input: {
+                        type: "radio-buttons",
+                        noValueOptionLabel: "Unknown",
+                        showNoValueOption: true,
+                      }
+                    },
+                    {
+                      fieldName: "switchInput",
+                      label: "Test switch",
+                      description: "Mr. switch",
+                      type: "field",
+                      input: {
+                        type: "switch",
+                        offValue: "No",
+                        onValue: "Yes"
+                      }
+                    }
+                    
+                    
+                    // switchInput,
+                    // fieldRadioInput,
                   ],
                 },
                 // spatialReference: { wkid: 4326 },
