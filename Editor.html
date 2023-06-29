@@ -20,7 +20,7 @@
 
     <script>
       require(["esri/WebMap", "esri/views/MapView", "esri/widgets/Editor", "esri/Map", "esri/layers/FeatureLayer","esri/popup/content/AttachmentsContent", "esri/form/elements/FieldElement",
-      "esri/form/elements/GroupElement", "esri/form/elements/inputs/ComboBoxInput", "esri/form/elements/inputs/RadioButtonsInput",
+      "esri/form/elements/GroupElement", "esri/form/elements/inputs/ComboBoxInput", "esri/widgets/ValuePicker", "esri/form/elements/inputs/RadioButtonsInput",
               "esri/form/elements/inputs/SwitchInput"], function (
         WebMap,
         MapView,
@@ -31,6 +31,7 @@
         FieldElement, 
         GroupElement,
         ComboBoxInput,
+        ValuePicker,
         RadioButtonsInput,
         SwitchInput
       ) {
@@ -100,32 +101,73 @@
                   ],
                 }
               },  
-              {
-                name: "switchInput",
-                alias: "switchInput",
-                type: "string",
-                domain : {
-                  type: "coded-value",
-                  name: "switchInput",
-                  codedValues:
-                  [
-                    { name : "one", code : "One" },
-                  ],
-                }
-              },  
-              
+              // {
+              //   name: "mySwitch",
+              //   type: "string",
+              //   domain: {
+              //     name: "YesNo",
+              //     type: "coded-value",
+              //     codedValues: [
+              //       { code: "Yes", name: "Yes" },
+              //       { code: "No", name: "No" }
+              //     ]
+              //   }
+              // },
             ],
             objectIdField: "ObjectID",
             geometryType: "polygon",
             spatialReference: { wkid: 4326 },
             source: [], // adding an empty feature collection
+            // renderer: {
+            //   type: "simple",
+            //   symbol: {
+            //     type: "web-style", // autocasts as new WebStyleSymbol()
+            //     styleName: "Esri2DPointSymbolsStyle",
+            //     name: "landmark"
+            //   }
+            // },
             popupTemplate: {
               title: "{Name}"
             },
 
           });
           webmap.add(monumentLayer);
-         
+        
+        
+        // Function that creates two popup elements for the template: attachments and text
+        function difficultyLevel(feature) {
+          // 1. Set how the attachments should display within the popup
+          const attachmentsElement = new AttachmentsContent({
+            displayType: "list"
+          });
+
+          const textElement = new TextContent();
+
+          const level = feature.graphic.attributes.difficulty;
+          const green = "<b><span style='color:green'>" + level + "</span></b>.";
+          const purple = "<b><span style='color:purple'>" + level + "</span></b>.";
+          const red = "<b><span style='color:red'>" + level + "</span></b>.";
+
+          // If the feature's "difficulty" attribute is a specific value, set it a certain color
+          // "easy" = green
+          // "medium" = purple
+          // "hard" = red
+          switch (level) {
+            case "easy":
+              textElement.text = "The {trailName} trail has a difficulty level of " + green;
+              return [textElement, attachmentsElement];
+              break;
+            case "medium":
+              textElement.text = "The {trailName} trail has a difficulty level of " + purple;
+              return [textElement, attachmentsElement];
+              break;
+            case "hard":
+              textElement.text = "The {trailName} trail has a difficulty level of " + red;
+              return [textElement, attachmentsElement];
+          }
+        }
+        
+        
         view.when(() => {
           // Create a custom group to separate the different areas of crime.
           // This function takes a 'grouping' object which contains a feature template and a feature layer.
@@ -206,19 +248,30 @@
                         showNoValueOption: true,
                       }
                     },
-                    {
-                      fieldName: "switchInput",
-                      label: "Test switch",
-                      description: "Mr. switch",
-                      type: "field",
-                      input: {
-                        type: "switch",
-                        offValue: "No",
-                        onValue: "Yes"
-                      }
-                    }
+                    // {
+                    //   type: "field",
+                    //   description: "Description for mySwitch field",
+                    //   domain: null,
+                    //   editable: true,
+                    //   editableExpression: null,
+                    //   fieldName: "mySwitch",
+                    //   hint: "",
+                    //   input: new SwitchInput({
+                    //     onValue: "Yes",
+                    //     offValue: "No"
+                    //   }),
+                    //   label: "YesNo",
+                    //   requiredExpression: null,
+                    //   valueExpression: null,
+                    //   visibilityExpression: null
+                    // }
+                    
+                    
+                    // switchInput,
+                    // fieldRadioInput,
                   ],
                 },
+                // spatialReference: { wkid: 4326 },
               };
             }
           });
